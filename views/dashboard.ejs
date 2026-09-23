@@ -1,0 +1,72 @@
+<% const title = 'Dashboard' %>
+<%- include('./partials/header') %>
+
+<h3 class="mb-4">Dashboard</h3>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Products</div>
+      <h2><%= productCount %></h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Orders</div>
+      <h2><%= report.orderCount %></h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Revenue (after discount + tax)</div>
+      <h2>Rp <%= report.totalRevenue.toLocaleString('id-ID', {maximumFractionDigits: 0}) %></h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Total Discount Given</div>
+      <h2>Rp <%= report.totalDiscount.toLocaleString('id-ID', {maximumFractionDigits: 0}) %></h2>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Revenue by Category</h5>
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th class="text-end">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% Object.keys(report.categoryTotals).forEach(cat => { %>
+          <tr>
+            <td><%= cat %></td>
+            <td class="text-end">Rp <%= report.categoryTotals[cat].toLocaleString('id-ID', {maximumFractionDigits: 0}) %></td>
+          </tr>
+          <% }) %>
+          <% if (Object.keys(report.categoryTotals).length === 0) { %>
+          <tr>
+            <td colspan="2" class="text-muted">No orders yet.</td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Quick Links</h5>
+      <div class="d-grid gap-2">
+        <a href="/products/new" class="btn btn-outline-primary">+ Add Product</a>
+        <a href="/orders/new" class="btn btn-outline-primary">+ Create Order</a>
+        <a href="/match" class="btn btn-outline-secondary">Character Match Tool</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

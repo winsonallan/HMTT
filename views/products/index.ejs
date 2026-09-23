@@ -1,0 +1,62 @@
+<% const title = 'Products' %>
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Products</h3>
+  <a href="/products/new" class="btn btn-primary">+ New Product</a>
+</div>
+
+<% if (error) { %>
+<div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+<div class="card p-3">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th class="text-end">Price</th>
+        <th class="text-end">Stock</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% products.forEach((p, i) => { %>
+      <tr>
+        <td><%= i + 1 %></td>
+        <td><%= p.name %></td>
+        <td>
+          <% if (p.category.toLowerCase() === "regular") { %>
+          <span class="badge bg-light text-primary"><%= p.category %></span>
+          <% } else if (p.category.toLowerCase() === "premium") { %>
+          <span class="badge bg-warning text-dark"><%= p.category %></span>
+          <% } %>
+        </td>
+        <td class="text-end">Rp <%= p.price.toLocaleString('id-ID') %></td>
+        <td class="text-end">
+          <% if (p.stock === 0) { %><span class="badge bg-danger">Out of stock</span><% } else { %><%= p.stock %><% } %>
+        </td>
+        <td class="text-end text-nowrap">
+          <form action="/products/<%= p.id %>/restock" method="POST" class="d-inline-flex align-items-center me-2">
+            <input type="number" name="quantity" class="form-control form-control-sm" style="width:80px;" placeholder="Qty" min="1" step="1" required>
+            <button class="btn btn-sm btn-success ms-1" type="submit">Restock</button>
+          </form>
+          <a href="/products/<%= p.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+          <form action="/products/<%= p.id %>?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?');">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+      <% if (products.length === 0) { %>
+      <tr>
+        <td colspan="6" class="text-muted text-center">No products yet.</td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>

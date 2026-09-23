@@ -1,0 +1,68 @@
+<% const title = 'Orders' %>
+<%- include('../partials/header.ejs') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Orders</h3>
+  <a href="/orders/new" class="btn btn-primary">+ New Order</a>
+</div>
+
+<div class="card p-3 mb-4">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Customer</th>
+        <th>Membership</th>
+        <th>Items</th>
+        <th class="text-end">Discount</th>
+        <th class="text-end">Grand Total</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% ordersWithSummary.forEach(({order, summary}, i) => { %>
+      <tr>
+        <td><%= i + 1 %></td>
+        <td><a href="/orders/<%= order.id %>"><%= order.customer_name %></a></td>
+        <td>
+          <% if (order.membership.toLowerCase() === "regular") { %>
+          <span class="badge text-bg-primary">
+            <% } else if (order.membership.toLowerCase() === "silver") {%>
+            <span class="badge text-bg-light">
+              <%} else {%>
+              <span class="badge text-bg-warning">
+                <% } %>
+                <%= order.membership %>
+              </span>
+        </td>
+        <td><%= summary.lines.length %> item(s)</td>
+        <td class="text-end">Rp <%= (summary.itemDiscountTotal + summary.membershipDiscount).toLocaleString('id-ID', {maximumFractionDigits: 0}) %></td>
+        <td class="text-end fw-bold">Rp <%= summary.grandTotal.toLocaleString('id-ID', {maximumFractionDigits: 0}) %></td>
+        <td class="text-end">
+          <form action="/orders/<%= order.id %>?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirm('Delete this order?');">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+      <% if (ordersWithSummary.length === 0) { %>
+      <tr>
+        <td colspan="7" class="text-muted text-center">No orders yet.</td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<div class="card p-3">
+  <h5>Report</h5>
+
+  <ul class="mb-0">
+    <li>Total orders: <%= report.orderCount %></li>
+    <li>Total items sold: <%= report.totalItemsSold %></li>
+    <li>Total revenue: Rp <%= report.totalRevenue.toLocaleString('id-ID', {maximumFractionDigits: 0}) %></li>
+    <li>Total discount given: Rp <%= report.totalDiscount.toLocaleString('id-ID', {maximumFractionDigits: 0}) %></li>
+  </ul>
+</div>
+
+<%- include('../partials/footer') %>

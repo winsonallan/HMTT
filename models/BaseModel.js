@@ -1,15 +1,14 @@
-const fs = require("fs");
-const path = require("path");
+const pool = require("../config/database");
 
 class BaseModel {
   constructor(tableName) {
     if (new.target === BaseModel) {
-      throw new Error("BaseModel cannot be instantiated directly");
+      throw new Error(
+        "BaseModel is abstract and cannot be instantiated directly",
+      );
     }
-
     this.tableName = tableName;
-    this.filePath = path.join(__dirname, "..", "data", `${tableName}.json`);
-    this._ensureFile();
+    this.pool = pool;
   }
 
   async _findAll(orderBy = "id ASC") {
@@ -61,3 +60,5 @@ class BaseModel {
     return rowCount > 0;
   }
 }
+
+module.exports = BaseModel;

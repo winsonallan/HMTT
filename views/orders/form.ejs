@@ -1,0 +1,118 @@
+<% const title = 'New Order' %>
+<%- include('../partials/header') %>
+
+<h3 class="mb-3">New Order</h3>
+
+<div class="card p-4" style="max-width:700px;">
+  <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+  <form method="POST" action="/orders">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Customer Name</label>
+        <input type="text" name="customerName" class="form-control" value="<%= old ? old.customerName : '' %>" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Membership Tier</label>
+        <select name="membership" class="form-select">
+          <option value="Regular" <%= old && old.membership === 'Regular' ? 'selected' : '' %>>Regular</option>
+          <option value="Silver" <%= old && old.membership === 'Silver' ? 'selected' : '' %>>Silver</option>
+          <option value="Gold" <%= old && old.membership === 'Gold' ? 'selected' : '' %>>Gold</option>
+        </select>
+      </div>
+    </div>
+
+    <h6>Items</h6>
+    <% const rows = old && old.items && old.items.length ? old.items : [{ productId: '', qty: '' }]; %>
+    <div id="items-wrapper">
+      <% rows.forEach(row => { %>
+      <div class="row mb-2 item-row">
+        <div class="col-md-7">
+          <select name="productId" class="form-select" required>
+            <option value="">-- select product --</option>
+            <% products.forEach(p => { %>
+            <option value="<%= p.id %>" data-stock="<%= p.stock %>" <%= String(row.productId) === String(p.id) ? 'selected' : '' %> <%= p.stock === 0 && String(row.productId) !== String(p.id) ? 'disabled' : '' %>>
+              <%= p.name %> (<%= p.category %>) - Rp <%= p.price.toLocaleString('id-ID') %> — <%= p.stock === 0 ? 'Out of stock' : 'Stock: ' + p.stock %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <input type="number" name="qty" class="form-control" placeholder="Qty" min="1" step="1" value="<%= row.qty %>" required>
+          <div class="form-text stock-hint"></div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <button type="button" id="add-item" class="btn btn-sm btn-outline-secondary mb-3">+ Add another item</button>
+    <br>
+    <button type="submit" class="btn btn-primary">Create Order</button>
+    <a href="/orders" class="btn btn-link">Cancel</a>
+  </form>
+
+  <div class="mt-4 bg-dark text-light rounded px-4 py-2">
+    <p>
+      Below is how discounts are applied: <br />
+      Quantity 20+ -> Premium = 15%, Regular = 10% <br />
+      Quantity 10 - 19 -> Premium = 8%, Regular 5% <br />
+      Quantity less than 10 -> Premium = 2%, Regular 0% <br /><br />
+      After that, we discount the total cost by the membership, with the details as following:<br />
+      Gold -> 5%<br />
+      Silver -> 2%<br />
+      Regular -> 0%<br />
+    </p>
+  </div>
+</div>
+
+<script>
+  const wrapper = document.getElementById('items-wrapper');
+
+  function refreshStock() {
+    const rows = [...wrapper.querySelectorAll('.item-row')];
+    const requested = {};
+    rows.forEach(row => {
+      const id = row.querySelector('select').value;
+      if (id) requested[id] = (requested[id] || 0) + (parseInt(row.querySelector('input').value, 10) || 0);
+    });
+
+    rows.forEach(row => {
+      const select = row.querySelector('select');
+      const input = row.querySelector('input');
+      const hint = row.querySelector('.stock-hint');
+      const option = select.options[select.selectedIndex];
+
+      hint.classList.remove('text-danger');
+      input.setCustomValidity('');
+
+      if (!select.value) {
+        hint.textContent = '';
+        input.removeAttribute('max');
+        return;
+      }
+
+      const stock = parseInt(option.dataset.stock, 10);
+      input.max = stock;
+      hint.textContent = 'Available: ' + stock;
+
+      if (requested[select.value] > stock) {
+        const msg = 'Only ' + stock + ' in stock' + (rows.filter(r => r.querySelector('select').value === select.value).length > 1 ? ' (across all rows for this product)' : '') + '.';
+        hint.textContent = msg;
+        hint.classList.add('text-danger');
+        input.setCustomValidity(msg);
+      }
+    });
+  }
+
+  document.getElementById('add-item').addEventListener('click', function() {
+    const row = wrapper.querySelector('.item-row').cloneNode(true);
+    row.querySelectorAll('input').forEach(i => i.value = '');
+    row.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    wrapper.appendChild(row);
+    refreshStock();
+  });
+
+  wrapper.addEventListener('input', refreshStock);
+  wrapper.addEventListener('change', refreshStock);
+  refreshStock();
+</script>
+
+<%- include('../partials/footer') %>

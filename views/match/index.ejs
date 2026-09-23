@@ -1,0 +1,48 @@
+<% const title = 'Character Match' %>
+<%- include('../partials/header') %>
+
+<h3 class="mb-3">Character Match Checker</h3>
+<p class="text-muted">Enter two free-text inputs. The system checks what percentage of the distinct characters in Input 1 also appear in Input 2.</p>
+
+<div class="card p-4 mb-4" style="max-width:600px;">
+  <form method="POST" action="/match">
+    <div class="mb-3">
+      <label class="form-label">Input 1</label>
+      <input type="text" name="input1" class="form-control" value="<%= form.input1 || '' %>" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Input 2</label>
+      <input type="text" name="input2" class="form-control" value="<%= form.input2 || '' %>" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label d-block">Mode</label>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" value="sensitive" id="sens" <%= (form.mode || 'sensitive') === 'sensitive' ? 'checked' : '' %>>
+        <label class="form-check-label" for="sens">Case sensitive</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" value="insensitive" id="insens" <%= form.mode === 'insensitive' ? 'checked' : '' %>>
+        <label class="form-check-label" for="insens">Not case sensitive</label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Compare</button>
+  </form>
+</div>
+
+<% if (result) { %>
+<div class="card p-4" style="max-width:600px;">
+  <h5>Result</h5>
+  <p>
+    Input 1: <strong><%= result.input1 %></strong> (<%= result.totalLength %> characters)<br>
+    Input 2: <strong><%= result.input2 %></strong><br>
+    Mode: <strong><%= result.caseSensitive ? 'Case sensitive' : 'Not case sensitive' %></strong>
+  </p>
+  <p>
+    Matched characters: <strong><%= result.matched.join(', ') || '-' %></strong> (<%= result.matchedCount %> of <%= result.totalLength %>)<br>
+    Unmatched characters: <strong><%= result.unmatched.join(', ') || '-' %></strong>
+  </p>
+  <div class="display-6 text-primary fw-bold"><%= result.percentage %>%</div>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

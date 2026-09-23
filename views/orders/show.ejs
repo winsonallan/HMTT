@@ -1,0 +1,61 @@
+<% const title = 'Order Detail' %>
+<%- include('../partials/header') %>
+
+<a href="/orders" class="btn btn-link ps-0">&larr; Back to Orders</a>
+<h3 class="mb-3">Order #<%= order.id %> — <%= order.customer_name %> <span class="badge bg-info text-dark"><%= order.membership %></span></h3>
+
+<div class="card p-3 mb-3">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Category</th>
+        <th class="text-end">Price</th>
+        <th class="text-end">Qty</th>
+        <th class="text-end">Subtotal</th>
+        <th class="text-end">Discount</th>
+        <th class="text-end">Line Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% summary.lines.forEach(line => { %>
+      <tr>
+        <td><%= line.name %></td>
+        <td><%= line.category %></td>
+        <td class="text-end">Rp <%= line.price.toLocaleString('id-ID') %></td>
+        <td class="text-end"><%= line.qty %></td>
+        <td class="text-end">Rp <%= line.lineSubtotal.toLocaleString('id-ID') %></td>
+        <td class="text-end">-Rp <%= line.lineDiscount.toLocaleString('id-ID', {maximumFractionDigits:0}) %> (<%= (line.discountRate*100).toFixed(0) %>%)</td>
+        <td class="text-end fw-bold">Rp <%= line.lineTotal.toLocaleString('id-ID', {maximumFractionDigits:0}) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<div class="card p-3" style="max-width:420px;">
+  <table class="table table-sm mb-0">
+    <tr>
+      <td>Subtotal</td>
+      <td class="text-end">Rp <%= summary.subtotal.toLocaleString('id-ID', {maximumFractionDigits:0}) %></td>
+    </tr>
+    <tr>
+      <td>Item discount</td>
+      <td class="text-end">-Rp <%= summary.itemDiscountTotal.toLocaleString('id-ID', {maximumFractionDigits:0}) %></td>
+    </tr>
+    <tr>
+      <td>Membership discount (<%= (summary.membershipRate*100).toFixed(0) %>%)</td>
+      <td class="text-end">-Rp <%= summary.membershipDiscount.toLocaleString('id-ID', {maximumFractionDigits:0}) %></td>
+    </tr>
+    <tr>
+      <td>Tax (PPN 11%)</td>
+      <td class="text-end">+Rp <%= summary.tax.toLocaleString('id-ID', {maximumFractionDigits:0}) %></td>
+    </tr>
+    <tr class="fw-bold border-top">
+      <td>Grand Total</td>
+      <td class="text-end">Rp <%= summary.grandTotal.toLocaleString('id-ID', {maximumFractionDigits:0}) %></td>
+    </tr>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>
